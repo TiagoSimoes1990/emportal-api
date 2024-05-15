@@ -49,6 +49,19 @@ pool.connect((err,client,release) => {
     })
 });
 
+// Send to client a single user details
+app.post('/api/usr-details', (req, res) => {
+    // Get the id from the route parameter
+    const userId = req.body.id;
+    console.log("USER DATA for ID: ", userId);
+    pool.query(`SELECT * FROM public.usr_data
+                WHERE id=$1`,[userId])
+        .then (usrData => {
+            console.log(usrData);
+            res.send(usrData.rows);
+        })
+});
+
 // Send to client the complete table of users
 app.get('/api/usr-data', (req, res, next) => {
     console.log("USER DATA:");
@@ -58,7 +71,6 @@ app.get('/api/usr-data', (req, res, next) => {
             res.send(usrData.rows);
         })
 });
-
 
 // Send to client the list of active users
 app.get('/api/usr-list', (req, res, next) => {
