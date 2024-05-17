@@ -1,5 +1,6 @@
 /* CORS middleware */
 
+require('dotenv').config(); // Load environment variables from .env file
 const cors = require('cors');
 
 // To prevent requests from unauthorized domains
