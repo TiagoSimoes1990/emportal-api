@@ -104,6 +104,30 @@ class User {
     }
   }
   
+
+  static async updateUserData(userId, updateFields) {
+    // Build dynamic SET clause
+    const setClause = Object.keys(updateFields)
+      .map(key => `${key} = $${Object.keys(updateFields).indexOf(key) + 2}`)
+      .join(', '); // Start parameters at $2 to leave $1 for userId
+
+    // TODO: Build dynamic RETURNING clause for updated fields
+    // const returningClause = Object.keys(updateFields)
+    //   .map(key => `CASE WHEN ${key} IS DISTINCT FROM $${Object.keys(updateFields).indexOf(key) + 2} THEN '${key}' END`) // Add 2 to the parameter number for userId
+    //   .filter(clause => clause !== null) // Remove null clauses
+    //   .join(', ');
+
+    const query = `UPDATE usr_data SET ${setClause} WHERE id = $1 RETURNING *`;
+    const values = [userId, ...Object.values(updateFields)];
+
+    try {
+        const result = await pool.query(query, values);
+        return result.rows; // Returns the updated user
+    } catch (err) {
+        console.error('Erro updating user data:', err.stack);
+        throw err;
+    }
+  }
   // TODO: Add more methods as needed (e.g., create, update, delete)
 }
 

@@ -48,8 +48,47 @@ async function getActiveUsers(req, res) {
   }
 }
 
+// Update user profile information
+async function updateDetails(req, res) { // TODO - Include 'next' for error handling
+  const userId = parseInt(req.params.id, 10); // Always provide radix (10) for parseInt
+  const updateField = req.body;
+
+  console.log("userId: ", userId);
+  console.log("updateField: ", updateField);
+    // TODO: Validation:
+    //    - custom validation function
+    //    - Ensure all required fields are present
+    //    - Validate field formats (email, phone, etc.)
+
+    // 1. Data Validation
+  // if (!validateUpdateFields(updateField)) { // Custom validation function
+  //   return next(new Error("Invalid input data")); 
+  // }
+
+  try{
+     // 2. Update User Data
+    const updatedUser = await User.updateUserData(userId, updateField);
+    if (!updatedUser) { // Check if update was successful
+      return res.status(404).json({ error: "User not found" });
+    }
+    // 3. Success Response
+    res.json({ 
+      message: "User updated successfully",
+      user: updatedUser 
+    });
+  }catch (err) {
+    // TODO - Implement centralized error handling on 'erroHandling.js'
+    console.error('Error updating user profile information:'. err.stack);
+    res.status(500).json({ message: 'Internal server error'})
+  }
+}
+
+// TODO - rename methods and remover the word 'user' as this method is inside a User class 
+
+// TODO - Create error handler
 module.exports = {
   getUserDetails,
   getAllUsers,
-  getActiveUsers
+  getActiveUsers,
+  updateDetails,
 };
