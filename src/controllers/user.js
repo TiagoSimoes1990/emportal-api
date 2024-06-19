@@ -83,6 +83,27 @@ async function updateDetails(req, res) { // TODO - Include 'next' for error hand
   }
 }
 
+// Create user
+async function create(req, res) {
+    // 1. Data Validation
+    const userData = req.body;
+  try {
+    // 2. Insert new user data
+    const createUser = await User.create(userData);
+    if (!createUser) { // Check if update was successful
+      return res.status(404).json({ error: "User not created" });
+    }
+    // 3. Success Response
+    res.json({ 
+      message: "User created successfully",
+      user: createUser
+    }); 
+  } catch (err) {
+    // TODO - Implement centralized error handling on 'erroHandling.js'
+    console.error('Error creating user:'. err.stack);
+    res.status(500).json({ message: 'Internal server error'})
+  }
+}
 // TODO - rename methods and remover the word 'user' as this method is inside a User class 
 
 // TODO - Create error handler
@@ -91,4 +112,5 @@ module.exports = {
   getAllUsers,
   getActiveUsers,
   updateDetails,
+  create,
 };

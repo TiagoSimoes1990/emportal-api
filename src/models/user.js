@@ -117,15 +117,40 @@ class User {
     //   .filter(clause => clause !== null) // Remove null clauses
     //   .join(', ');
 
-    const query = `UPDATE usr_data SET ${setClause} WHERE id = $1 RETURNING *`;
+    const query = `
+      UPDATE usr_data SET ${setClause} 
+      WHERE id = $1 RETURNING *`;
     const values = [userId, ...Object.values(updateFields)];
 
     try {
         const result = await pool.query(query, values);
         return result.rows; // Returns the updated user
     } catch (err) {
-        console.error('Erro updating user data:', err.stack);
+        console.error('Error updating user data:', err.stack);
         throw err;
+    }
+  }
+
+  static async create(userData) {
+    const query = `
+      INSERT INTO usr_data (
+        first_names, last_names, birth_date, phone_number, 
+        prefix_phone_number, address, zipcode, city, passwd, aboutme, 
+        username, email, active, photo, profile_id, language_id,
+        category_id, employe_number
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`;
+    const values = [...Object.values(userData)];
+    console.log(values);
+
+    try {
+      const result = await pool.query(query, values);
+      return result.rows;
+
+    } catch (err) {
+       console.error('Error executing query', err.stack);
+      throw err;
+
     }
   }
   // TODO: Add more methods as needed (e.g., create, update, delete)

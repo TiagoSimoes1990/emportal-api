@@ -9,5 +9,6 @@ router.post('/details', userController.getUserDetails); //TODO: Change from post
 router.get('/', userController.getAllUsers);
 router.get('/active', userController.getActiveUsers); //TODO: change the route to '/list-active' - this makes the intention of the route clearer
 router.patch('/update/:id', userController.updateDetails);
+router.post('/create', userController.create);
 
 module.exports = router; // Export the router for use in app.js
