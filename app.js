@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const corsMiddleware = require('./src/middleware/cors');
 const userRoutes = require('./src/routes/user');
+const errorHandler = require('./src/utils/errorHandler');
 
 const app = express();
 
@@ -14,10 +15,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/api/users', userRoutes);
 
 // Global Error Handler (Optional, but recommended)
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   res.status(500).json({ message: 'Something went wrong!' });
+// });
+
+// Error handler middleware 
+app.use(errorHandler)
 
 // Start the Server
 const PORT = process.env.PORT || 3000;

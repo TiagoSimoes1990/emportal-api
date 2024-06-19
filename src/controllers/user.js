@@ -1,7 +1,7 @@
 /* User-related API logic */
 
 const pool = require('../config/db'); // Import the database connection pool
-
+const { GeneralError } = require('../utils/errors');
 const User = require('../models/user') // Import the User model
 
 // Get user details by ID
@@ -10,12 +10,11 @@ async function getUserDetails(req, res) {
   try {
     const user = await User.findById(userId);
     if(!user) {
-        return res.status(404).json({message: 'User not found' });
+      return next(new GeneralError("User not found", 404));
     }
     res.json(user);
   } catch (err) {
-    console.error('Error getting user details:', err.stack);
-    res.status(500).json({ message: 'Internal server error' }); // Send an error response
+    next(err);
   }
 }
 
@@ -25,12 +24,11 @@ async function getAllUsers(req, res) {
   try {
     const result = await User.findAll();
     if(!result) {
-        return res.status(404).json({message: 'No users found' });
+        return next(new GeneralError("No users found", 404));
     }
     res.json(result);  
   } catch (err) {
-    console.error('Error getting all users:', err.stack);
-    res.status(500).json({ message: 'Internal server error' }); // Send an error response
+    next(err);
   }
 }
 
@@ -39,12 +37,11 @@ async function getActiveUsers(req, res) {
   try {
     const result = await User.findActive();
     if (!result) {
-        return res.status(404).json({message: 'No active users found'});
+        return next(new GeneralError("No active users found", 404));
     }
     res.json(result);
   } catch (err) {
-    console.error('Error getting active users:', err.stack);
-    res.status(500).json({ message: 'Internal server error' });
+    next(err);
   }
 }
 
@@ -62,14 +59,14 @@ async function updateDetails(req, res) { // TODO - Include 'next' for error hand
 
     // 1. Data Validation
   // if (!validateUpdateFields(updateField)) { // Custom validation function
-  //   return next(new Error("Invalid input data")); 
+  //   return next(new GeneralError("Invalid input data", 400));
   // }
 
   try{
      // 2. Update User Data
     const updatedUser = await User.updateUserData(userId, updateField);
     if (!updatedUser) { // Check if update was successful
-      return res.status(404).json({ error: "User not found" });
+      return next(new GeneralError("User not found",404));
     }
     // 3. Success Response
     res.json({ 
@@ -77,21 +74,19 @@ async function updateDetails(req, res) { // TODO - Include 'next' for error hand
       user: updatedUser 
     });
   }catch (err) {
-    // TODO - Implement centralized error handling on 'erroHandling.js'
-    console.error('Error updating user profile information:'. err.stack);
-    res.status(500).json({ message: 'Internal server error'})
+    next(err);
   }
 }
 
 // Create user
-async function create(req, res) {
+async function create(req, res, next) {
     // 1. Data Validation
     const userData = req.body;
   try {
     // 2. Insert new user data
     const createUser = await User.create(userData);
     if (!createUser) { // Check if update was successful
-      return res.status(404).json({ error: "User not created" });
+      return next(new GeneralError("Failed to create user", 422))
     }
     // 3. Success Response
     res.json({ 
@@ -100,8 +95,10 @@ async function create(req, res) {
     }); 
   } catch (err) {
     // TODO - Implement centralized error handling on 'erroHandling.js'
-    console.error('Error creating user:'. err.stack);
-    res.status(500).json({ message: 'Internal server error'})
+    if (err.name === 'SequelizeUniqueConstraintError') {
+      return next(new GeneralError('User already exists', 409));
+    }
+    next(err);
   }
 }
 // TODO - rename methods and remover the word 'user' as this method is inside a User class 
