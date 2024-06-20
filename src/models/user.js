@@ -138,13 +138,13 @@ class User {
         username, email, active, photo, profile_id, language_id,
         category_id, employe_number
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`;
-    const values = [...Object.values(userData)];
-    console.log(values);
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+      RETURNING *`;
 
+    const values = Object.values(userData);
     try {
       const result = await pool.query(query, values);
-      return result.rows;
+      return [result.rowCount, result.rows]; // Return [rowCount, createdRow]
 
     } catch (err) {
        console.error('Error executing query', err.stack);

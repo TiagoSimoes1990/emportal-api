@@ -79,20 +79,21 @@ async function create(req, res, next) {
     const userData = req.body;
   try {
     // 2. Insert new user data
-    const createUser = await User.create(userData);
-    if (!createUser) { // Check if update was successful
+    // Destructuring  of result
+    const [rowCount, [createdUser]] = await User.create(userData);
+    if (rowCount === 0) { // Check if update was successful
       return next(new GeneralError("Failed to create user", 422))
     }
     // 3. Success Response
-    res.json({ 
+    res.status(201).json({ // Use 201 Created status code
       message: "User created successfully",
-      user: createUser
+      user: createdUser 
     }); 
   } catch (err) {
-    if (err.name === 'SequelizeUniqueConstraintError') {
+    if (err.code === '23505') { // PostgreSQL unique constraint violation code
       return next(new GeneralError('User already exists', 409));
     }
-    next(err);
+    next(err); // Handle other errors
   }
 }
 
