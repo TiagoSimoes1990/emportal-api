@@ -58,14 +58,15 @@ async function update(req, res, next) {
 
   try{
      // 2. Update User Data
-    const updatedUser = await User.update(userId, updateField);
-    if (!updatedUser) { // Check if update was successful
+    // Destructuring  of result
+    const [rowCount, updatedRows] = await User.update(userId, updateField);
+    if (rowCount === 0) { // Check if the rowCount is greater then 0, meaning the user was updated
       return next(new GeneralError("User not found",404));
     }
     // 3. Success Response
     res.json({ 
       message: "User updated successfully",
-      user: updatedUser 
+      user: updatedRows[0]
     });
   }catch (err) {
     next(err);

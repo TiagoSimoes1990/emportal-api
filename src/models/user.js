@@ -123,7 +123,7 @@ class User {
 
     try {
         const result = await pool.query(query, values);
-        return result.rows; // Returns the updated user
+        return [result.rowCount, result.rows]; // Return [rowCount, updatedRows]
     } catch (err) {
         console.error('Error updating user data:', err.stack);
         throw err;
