@@ -5,7 +5,7 @@ const { GeneralError } = require('../utils/errors');
 const User = require('../models/user') // Import the User model
 
 // Get user details by ID
-async function getUserDetails(req, res) {
+async function getDetails(req, res, next) {
   const userId = req.body.id; // Assuming the ID is sent in the request body
   try {
     const user = await User.findById(userId);
@@ -20,7 +20,7 @@ async function getUserDetails(req, res) {
 
 // Get all users 
 // TODO: (potentially with filtering/pagination in the future)
-async function getAllUsers(req, res) {
+async function getAll(req, res, next) {
   try {
     const result = await User.findAll();
     if(!result) {
@@ -33,7 +33,7 @@ async function getAllUsers(req, res) {
 }
 
 // Get active users
-async function getActiveUsers(req, res) {
+async function getActive(req, res, next) {
   try {
     const result = await User.findActive();
     if (!result) {
@@ -46,7 +46,7 @@ async function getActiveUsers(req, res) {
 }
 
 // Update user profile information
-async function updateDetails(req, res) { // TODO - Include 'next' for error handling
+async function update(req, res, next) { // TODO - Include 'next' for error handling
   const userId = parseInt(req.params.id, 10); // Always provide radix (10) for parseInt
   const updateField = req.body;
 
@@ -64,7 +64,7 @@ async function updateDetails(req, res) { // TODO - Include 'next' for error hand
 
   try{
      // 2. Update User Data
-    const updatedUser = await User.updateUserData(userId, updateField);
+    const updatedUser = await User.update(userId, updateField);
     if (!updatedUser) { // Check if update was successful
       return next(new GeneralError("User not found",404));
     }
@@ -94,20 +94,17 @@ async function create(req, res, next) {
       user: createUser
     }); 
   } catch (err) {
-    // TODO - Implement centralized error handling on 'erroHandling.js'
     if (err.name === 'SequelizeUniqueConstraintError') {
       return next(new GeneralError('User already exists', 409));
     }
     next(err);
   }
 }
-// TODO - rename methods and remover the word 'user' as this method is inside a User class 
 
-// TODO - Create error handler
 module.exports = {
-  getUserDetails,
-  getAllUsers,
-  getActiveUsers,
-  updateDetails,
+  getDetails,
+  getAll,
+  getActive,
+  update,
   create,
 };

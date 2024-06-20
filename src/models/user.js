@@ -104,8 +104,7 @@ class User {
     }
   }
   
-
-  static async updateUserData(userId, updateFields) {
+  static async update(userId, updateFields) {
     // Build dynamic SET clause
     const setClause = Object.keys(updateFields)
       .map(key => `${key} = $${Object.keys(updateFields).indexOf(key) + 2}`)
@@ -153,7 +152,7 @@ class User {
 
     }
   }
-  // TODO: Add more methods as needed (e.g., create, update, delete)
+  // TODO: Add more methods as needed (e.g., delete)
 }
 
 module.exports = User;
