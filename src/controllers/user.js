@@ -6,7 +6,7 @@ const User = require('../models/user') // Import the User model
 
 // Get user details by ID
 async function getDetails(req, res, next) {
-  const userId = req.body.id; // Assuming the ID is sent in the request body
+  const userId = parseInt(req.params.id,10); // Assuming the ID is sent in the request body
   try {
     const user = await User.findById(userId);
     if(!user) {
@@ -22,11 +22,8 @@ async function getDetails(req, res, next) {
 // TODO: (potentially with filtering/pagination in the future)
 async function getAll(req, res, next) {
   try {
-    const result = await User.findAll();
-    if(!result) {
-        return next(new GeneralError("No users found", 404));
-    }
-    res.json(result);  
+    const users = await User.findAll();
+    res.json(users);  // Return users even if it's an empty array
   } catch (err) {
     next(err);
   }
@@ -35,18 +32,15 @@ async function getAll(req, res, next) {
 // Get active users
 async function getActive(req, res, next) {
   try {
-    const result = await User.findActive();
-    if (!result) {
-        return next(new GeneralError("No active users found", 404));
-    }
-    res.json(result);
+    const users = await User.findActive();
+    res.json(users); // Return activeUsers even if it's an empty array
   } catch (err) {
     next(err);
   }
 }
 
 // Update user profile information
-async function update(req, res, next) { // TODO - Include 'next' for error handling
+async function update(req, res, next) {
   const userId = parseInt(req.params.id, 10); // Always provide radix (10) for parseInt
   const updateField = req.body;
 
