@@ -100,19 +100,17 @@ async function create(req, res, next) {
 // Deactivate user
 async function deactivate(req, res, next) {
   // 1. Get the user id
-  const userId = req.params.id;
+  const userId = parseInt(req.params.id);
 
   try {
     // 2. Update the user 'active' state 
     const [rowCount, deactivatedUser] = await User.deactivate(userId);
-    console.log("----- Deactivate method call from controller -----");
-    console.log(rowCount);
-    console.log(deactivatedUser);
     if (rowCount === 0) {
       return next(new GeneralError('User not found'), 404);
     } else if (rowCount > 1) { 
       return next(new GeneralError("Unexpected error: Multiple users were deactivated", 500));
     }
+     // 3. Success Response
     res.json({
       message:'User deactivated sucessfully',
       user:deactivatedUser
@@ -125,11 +123,37 @@ async function deactivate(req, res, next) {
   }
 }
 
+async function remove(req, res, next) {
+  // 1. Get userId
+  const userId = parseInt(req.params.id);
+
+  try {
+  // 2. Delete the user
+  const [rowCount, removedUser] = await User.remove(userId);
+
+  if (rowCount === 0) {
+    return next(new GeneralError('User not found'), 404);
+  }
+   // 3. Success Response
+  res.json({
+    message:'User removed sucessfully',
+    user:removedUser
+  });
+    
+  } catch (err) {
+    if (err.code === '23505') { // PostgreSQL unique constraint violation code
+      return next( new GeneralError('Cannout remove user due to dependencies', 409));
+    }
+    next(err);
+  }
+}
+
 module.exports = {
   getDetails,
   getAll,
   getActive,
   update,
   create,
-  deactivate
+  deactivate,
+  remove
 };
