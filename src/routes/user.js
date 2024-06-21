@@ -7,7 +7,7 @@ const userController = require('../controllers/user');
 // Define user routes
 router.get('/details/:id', userController.getDetails); //TODO: Change from post to get -> this route does not create anything, gets the info according to the user ID
 router.get('/', userController.getAll);
-router.get('/list-active', userController.getActive);
+router.get('/active', userController.getActive);
 router.patch('/update/:id', userController.update);
 router.post('/create', userController.create);
 
