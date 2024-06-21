@@ -152,6 +152,26 @@ class User {
 
     }
   }
+
+  static async deactivate(userID) {
+    const query = `
+      UPDATE usr_data
+      SET active = false
+      WHERE id = $1
+      RETURNING *
+    `;
+    const values = [userID];
+
+    try {
+      const result = await pool.query(query,values);
+      console.log("Log of result from model - DEACTIVATE method");
+      console.log(result);
+      return [result.rowCount, result.rows];
+    } catch (err) {
+      console.error('Erro executing query', err.stack);
+      throw err;
+    }
+  }
   // TODO: Add more methods as needed (e.g., delete)
 }
 

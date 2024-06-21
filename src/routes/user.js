@@ -9,6 +9,7 @@ router.get('/details/:id', userController.getDetails);
 router.get('/', userController.getAll);
 router.get('/active', userController.getActive);
 router.patch('/update/:id', userController.update);
+router.patch('/deactivate/:id', userController.deactivate);
 router.post('/create', userController.create);
 
 module.exports = router; // Export the router for use in app.js

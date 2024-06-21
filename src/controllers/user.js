@@ -97,10 +97,39 @@ async function create(req, res, next) {
   }
 }
 
+// Deactivate user
+async function deactivate(req, res, next) {
+  // 1. Get the user id
+  const userId = req.params.id;
+
+  try {
+    // 2. Update the user 'active' state 
+    const [rowCount, deactivatedUser] = await User.deactivate(userId);
+    console.log("----- Deactivate method call from controller -----");
+    console.log(rowCount);
+    console.log(deactivatedUser);
+    if (rowCount === 0) {
+      return next(new GeneralError('User not found'), 404);
+    } else if (rowCount > 1) { 
+      return next(new GeneralError("Unexpected error: Multiple users were deactivated", 500));
+    }
+    res.json({
+      message:'User deactivated sucessfully',
+      user:deactivatedUser
+    });
+  } catch (err) {
+    if (err.code === '23505') {// PostgreSQL unique constraint violation code
+      return next (new GeneralError('Cannot deactivate user due to dependencies', 409));
+    }
+    next(err); // Handle other errors with errorHandler Middleware
+  }
+}
+
 module.exports = {
   getDetails,
   getAll,
   getActive,
   update,
   create,
+  deactivate
 };
