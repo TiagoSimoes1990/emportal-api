@@ -3,6 +3,7 @@
 const pool = require('../config/db'); // Import the database connection pool
 const { GeneralError } = require('../utils/errors');
 const User = require('../models/user') // Import the User model
+const userService = require('../services/userService')
 
 // Get user details by ID
 async function getDetails(req, res, next) {
@@ -123,6 +124,7 @@ async function deactivate(req, res, next) {
   }
 }
 
+// Remove user from database
 async function remove(req, res, next) {
   // 1. Get userId
   const userId = parseInt(req.params.id);
@@ -148,6 +150,25 @@ async function remove(req, res, next) {
   }
 }
 
+// Upload profile Photo
+async function uploadProfilePhoto(req,res,next) {
+  try {
+    // 1. Call the uploadProfilePhoto service
+    const result = await userService.uploadImage(req.file);
+    
+    // 2. Success response
+    res.status(201).json({
+      message: result.message,
+      result: result.key
+    });
+  } catch (error) {
+    //  3. Handle Errors
+    console.error(error);
+    next(new GeneralError('Failed to upload photo', 500));
+  }
+  
+}
+
 module.exports = {
   getDetails,
   getAll,
@@ -155,5 +176,6 @@ module.exports = {
   update,
   create,
   deactivate,
-  remove
+  remove,
+  uploadProfilePhoto
 };
