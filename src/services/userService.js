@@ -1,5 +1,6 @@
 const {S3Client, PutObjectCommand} = require('@aws-sdk/client-s3');
 const {s3, bucketName} = require('../config/s3');
+const randomNameGenerator = require('../utils/randomNameGenerator');
 
 const uploadImage = async (file) => {
     console.log(file);
@@ -7,7 +8,7 @@ const uploadImage = async (file) => {
     try {      
         const params = {
             Bucket: bucketName,
-            Key: file.originalname,
+            Key: randomNameGenerator(),
             Body: file.buffer,
             ContentType: file.mimetype,
         };
