@@ -13,6 +13,13 @@ async function getDetails(req, res, next) {
     if(!user) {
       return next(new GeneralError("User not found", 404));
     }
+
+    const photoURL = await userService.getImageURL(user);
+    console.log("Photo URL: ", photoURL);
+     
+    user.photo = photoURL;
+
+    console.log(user);
     res.json(user);
   } catch (err) {
     next(err);

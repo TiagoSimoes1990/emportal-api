@@ -1,7 +1,8 @@
-const {S3Client, PutObjectCommand} = require('@aws-sdk/client-s3');
+const {S3Client, PutObjectCommand, GetObjectCommand} = require('@aws-sdk/client-s3');
 const {s3, bucketName} = require('../config/s3');
 const generateRandomName = require('../utils/generateRandomName');
 const User = require('../models/user')
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 const uploadImage = async (file) => {
     console.log(file);
@@ -47,6 +48,27 @@ const updateUserProfileImage = async (userId, imageName) => {
     }
 }
 
+
+const getImageURL = async (imageData) => {
+    try {
+        const getObjectParams = {
+            Bucket: bucketName,
+            Key: imageData.photo,
+        }
+        const command = new GetObjectCommand(getObjectParams);
+        const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
+        console.log(url);
+        
+        if(!url) {
+            throw new Error('Image not found')
+        }
+        return url;
+    } catch (error) {
+        throw error;
+    }
+}
+
 module.exports = {
-    uploadImage
+    uploadImage,
+    getImageURL
 };
