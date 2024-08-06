@@ -153,16 +153,21 @@ async function remove(req, res, next) {
 // Upload profile Photo
 async function uploadProfilePhoto(req,res,next) {
   try {
-    // 1. Call the uploadProfilePhoto service
+    // 1. Get userId
+    const userId = parseInt(req.params.id);
+
+    // 2. Call the uploadProfilePhoto service
     const result = await userService.uploadImage(req.file);
     
-    // 2. Success response
+    await User.update(userId,{photo: result.imageName});
+
+    // 3. Success response
     res.status(201).json({
       message: result.message,
       result: result.key
     });
   } catch (error) {
-    //  3. Handle Errors
+    //  4. Handle Errors
     console.error(error);
     next(new GeneralError('Failed to upload photo', 500));
   }

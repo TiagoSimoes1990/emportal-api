@@ -17,7 +17,7 @@ router.patch('/deactivate/:id', userController.deactivate);
 
 // ----- POST requests ----- //
 router.post('/create', userController.create);
-router.post('/photo', upload.single('image'), userController.uploadProfilePhoto);
+router.post('/photo/:id', upload.single('image'), userController.uploadProfilePhoto);
 
 // ----- DELETE requests ----- //
 router.delete('/remove/:id', userController.remove);

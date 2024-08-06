@@ -1,14 +1,16 @@
 const {S3Client, PutObjectCommand} = require('@aws-sdk/client-s3');
 const {s3, bucketName} = require('../config/s3');
-const randomNameGenerator = require('../utils/randomNameGenerator');
+const generateRandomName = require('../utils/generateRandomName');
+const User = require('../models/user')
 
 const uploadImage = async (file) => {
     console.log(file);
     
+    const imageName = generateRandomName();
     try {      
         const params = {
             Bucket: bucketName,
-            Key: randomNameGenerator(),
+            Key: imageName,
             Body: file.buffer,
             ContentType: file.mimetype,
         };
@@ -20,6 +22,7 @@ const uploadImage = async (file) => {
         return {
             message: 'Photo uploaded successfully',
             key: result.Key, // Or other relevant data
+            imageName: imageName,
         };
     } catch (error) {
         // Handle specific error types if needed
@@ -31,6 +34,18 @@ const uploadImage = async (file) => {
         throw error; // Re-throw for general errors
       }
 };
+
+const updateUserProfileImage = async (userId, imageName) => {
+    try {
+        const user = await User.update(userId, {photo: imageName})
+        if(!user) {
+            throw new Error('User not found')
+        }
+        return user;
+    } catch (error) {
+        throw error;
+    }
+}
 
 module.exports = {
     uploadImage
