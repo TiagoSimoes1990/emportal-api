@@ -32,6 +32,15 @@ async function getDetails(req, res, next) {
 async function getAll(req, res, next) {
   try {
     const users = await User.findAll();
+
+    for(const user of users) {
+      if(user.photo !== null) {
+        const photoURL = await userService.getImageURL(user);
+        console.log("Photo URL: ", photoURL);
+        user.photo = photoURL;
+      }
+    }
+    console.log(users);
     res.json(users);  // Return users even if it's an empty array
   } catch (err) {
     next(err);
@@ -42,6 +51,15 @@ async function getAll(req, res, next) {
 async function getActive(req, res, next) {
   try {
     const users = await User.findActive();
+
+    for(const user of users) {
+      if(user.photo !== null) {
+        const photoURL = await userService.getImageURL(user);
+        console.log("Photo URL: ", photoURL);
+        user.photo = photoURL;
+      }
+    }
+    console.log(users);
     res.json(users); // Return activeUsers even if it's an empty array
   } catch (err) {
     next(err);
