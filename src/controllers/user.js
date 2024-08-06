@@ -14,11 +14,12 @@ async function getDetails(req, res, next) {
       return next(new GeneralError("User not found", 404));
     }
 
-    const photoURL = await userService.getImageURL(user);
-    console.log("Photo URL: ", photoURL);
-     
-    user.photo = photoURL;
-
+    if(user.photo !== null) {
+      const photoURL = await userService.getImageURL(user);
+      console.log("Photo URL: ", photoURL);
+      user.photo = photoURL;
+    }
+    
     console.log(user);
     res.json(user);
   } catch (err) {
