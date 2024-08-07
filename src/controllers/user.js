@@ -15,7 +15,7 @@ async function getDetails(req, res, next) {
     }
 
     if(user.photo !== null) {
-      const photoURL = await userService.getImageURL(user);
+      const photoURL = await userService.getImageURL(user.photo);
       console.log("Photo URL: ", photoURL);
       user.photo = photoURL;
     }
@@ -35,7 +35,8 @@ async function getAll(req, res, next) {
 
     for(const user of users) {
       if(user.photo !== null) {
-        const photoURL = await userService.getImageURL(user);
+        const photoURL = await userService.getImageURL(user.photo);
+        console.log("-->>   Refactored after await userService.getImageURL(user.photo) on getAll");
         console.log("Photo URL: ", photoURL);
         user.photo = photoURL;
       }
@@ -54,7 +55,8 @@ async function getActive(req, res, next) {
 
     for(const user of users) {
       if(user.photo !== null) {
-        const photoURL = await userService.getImageURL(user);
+        const photoURL = await userService.getImageURL(user.photo);
+        console.log("-->>   Refactored after await userService.getImageURL(user.photo) on getActive");
         console.log("Photo URL: ", photoURL);
         user.photo = photoURL;
       }
@@ -163,7 +165,9 @@ async function remove(req, res, next) {
     // 3. Delete user photo from S3 bucket before deleting user if image exists
     if (photoRowCount > 0) {
       // 3.1. Call for userService deleteImage
-      await userService.deleteImage(rows[0]);
+      await userService.deleteImage(rows[0].photo);
+      console.log("-->>   Refactored after await userService.deleteImage(rows[0].photo) on REMOVE");
+      
     }
     // 4. Delete the user from DB
     const [rowCount, removedUser] = await User.remove(userId);

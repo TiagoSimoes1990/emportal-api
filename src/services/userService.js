@@ -44,15 +44,15 @@ const uploadImage = async (file,originalImageName) => {
 /**
  * Generates a pre-signed URL for accessing an image stored in the S3 bucket.
  *
- * @param {Object} imageData - An object containing the image information, with a `photo` property representing the image filename.
+ * @param {string} imageFilename - The filename of the image to retrieve.
  * @returns {Promise<string>} A Promise resolving to the pre-signed URL for the image, or throws an error if the image is not found.
  * @throws Error if the image is not found or an error occurs during URL generation.
  */
-const getImageURL = async (imageData) => {
+const getImageURL = async (imageFilename) => {
     try {
         const getObjectParams = {
             Bucket: bucketName,
-            Key: imageData.photo,
+            Key: imageFilename,
         }
         const command = new GetObjectCommand(getObjectParams);
         const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
@@ -70,14 +70,14 @@ const getImageURL = async (imageData) => {
 /**
  * Deletes an image from the S3 bucket.
  *
- * @param {Object} imageData - An object containing the image information, with a `photo` property representing the image filename.
+ * @param {string} imageFilename - The filename of the image to retrieve.
  * @returns {Promise<Object>} A Promise resolving to an object containing a success message and the deleted image key.
  * @throws Error if the image is not found, the bucket does not exist, access is denied, or another error occurs during deletion.
  */
-const deleteImage = async (imageData) => {
+const deleteImage = async (imageFilename) => {
     const deleteObjectParams = {
         Bucket: bucketName,
-        Key: imageData.photo
+        Key: imageFilename
     }
 
     const command = new DeleteObjectCommand(deleteObjectParams);
