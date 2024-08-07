@@ -155,18 +155,27 @@ async function remove(req, res, next) {
   // 1. Get userId
   const userId = parseInt(req.params.id);
 
-  try {
-  // 2. Delete the user
-  const [rowCount, removedUser] = await User.remove(userId);
+  // 2. Check current user photo
+  const [photoRowCount, rows] = await User.getPhoto(userId);
 
-  if (rowCount === 0) {
-    return next(new GeneralError('User not found'), 404);
-  }
-   // 3. Success Response
-  res.json({
-    message:'User removed sucessfully',
-    user:removedUser
-  });
+  try {
+
+    // 3. Delete user photo from S3 bucket before deleting user if image exists
+    if (photoRowCount > 0) {
+      // 3.1. Call for userService deleteImage
+      await userService.deleteImage(rows[0]);
+    }
+    // 4. Delete the user from DB
+    const [rowCount, removedUser] = await User.remove(userId);
+
+    if (rowCount === 0) {
+      return next(new GeneralError('User not found'), 404);
+    }
+    // 3. Success Response
+    res.json({
+      message:'User removed sucessfully',
+      user:removedUser
+    });
     
   } catch (err) {
     if (err.code === '23505') { // PostgreSQL unique constraint violation code
