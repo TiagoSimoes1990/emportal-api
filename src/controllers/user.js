@@ -182,12 +182,17 @@ async function uploadProfilePhoto(req,res,next) {
     // 1. Get userId
     const userId = parseInt(req.params.id);
 
-    // 2. Call the uploadProfilePhoto service
-    const result = await userService.uploadImage(req.file);
+    // 2. Check current user photo
+    const [rowCount, rows] = await User.getPhoto(userId);
+    
+    const currentPhoto = rows[0].photo;      
+
+    // 3. Call the uploadProfilePhoto service
+    const result = await userService.uploadImage(req.file, currentPhoto);
     
     await User.update(userId,{photo: result.imageName});
 
-    // 3. Success response
+    // 4. Success response
     res.status(201).json({
       message: result.message,
       result: result.key

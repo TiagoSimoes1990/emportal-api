@@ -1,17 +1,22 @@
-const {S3Client, PutObjectCommand, GetObjectCommand} = require('@aws-sdk/client-s3');
+const {S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand} = require('@aws-sdk/client-s3');
 const {s3, bucketName} = require('../config/s3');
 const generateRandomName = require('../utils/generateRandomName');
 const User = require('../models/user')
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
-const uploadImage = async (file) => {
-    console.log(file);
-    
-    const imageName = generateRandomName();
+/**
+ * Uploads an image to an S3 bucket.
+ *
+ * @param {Object} file - The image file to be uploaded.
+ * @param {string} [originalImageName] - Optional. The desired filename for the image. If not provided, a random filename will be generated.
+ * @returns {Promise<Object>} A Promise resolving to an object containing the upload result.
+ * @throws Error if an error occurs during the upload process.
+ */
+const uploadImage = async (file,originalImageName) => {    
     try {      
         const params = {
             Bucket: bucketName,
-            Key: imageName,
+            Key: originalImageName ? originalImageName : generateRandomName(), // Check if original name is passed as a parameter
             Body: file.buffer,
             ContentType: file.mimetype,
         };
@@ -48,7 +53,13 @@ const updateUserProfileImage = async (userId, imageName) => {
     }
 }
 
-
+/**
+ * Generates a pre-signed URL for accessing an image stored in the S3 bucket.
+ *
+ * @param {Object} imageData - An object containing the image information, with a `photo` property representing the image filename.
+ * @returns {Promise<string>} A Promise resolving to the pre-signed URL for the image, or throws an error if the image is not found.
+ * @throws Error if the image is not found or an error occurs during URL generation.
+ */
 const getImageURL = async (imageData) => {
     try {
         const getObjectParams = {
