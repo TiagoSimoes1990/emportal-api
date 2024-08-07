@@ -188,5 +188,26 @@ class User {
     }
 
   }
+
+  static async getPhoto(userId) {
+    const query = `
+    SELECT 
+      photo
+    FROM
+      usr_data
+    WHERE 
+      id = $1
+    `;
+    const values = [userId];
+
+    try {
+      const result = await pool.query(query,values);
+      console.log(result);
+      return [result.rowCount,result.rows];
+    } catch (error) {
+      console.erro('Error executing query', error.stack);
+      throw error;
+    }
+  }
 }
 module.exports = User;
