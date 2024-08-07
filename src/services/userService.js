@@ -41,18 +41,6 @@ const uploadImage = async (file,originalImageName) => {
       }
 };
 
-const updateUserProfileImage = async (userId, imageName) => {
-    try {
-        const user = await User.update(userId, {photo: imageName})
-        if(!user) {
-            throw new Error('User not found')
-        }
-        return user;
-    } catch (error) {
-        throw error;
-    }
-}
-
 /**
  * Generates a pre-signed URL for accessing an image stored in the S3 bucket.
  *
