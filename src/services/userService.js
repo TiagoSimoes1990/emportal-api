@@ -1,4 +1,4 @@
-const {S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand} = require('@aws-sdk/client-s3');
+const {S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, BucketAlreadyExists} = require('@aws-sdk/client-s3');
 const {s3, bucketName} = require('../config/s3');
 const generateRandomName = require('../utils/generateRandomName');
 const User = require('../models/user')
@@ -79,7 +79,42 @@ const getImageURL = async (imageData) => {
     }
 }
 
+/**
+ * Deletes an image from the S3 bucket.
+ *
+ * @param {Object} imageData - An object containing the image information, with a `photo` property representing the image filename.
+ * @returns {Promise<Object>} A Promise resolving to an object containing a success message and the deleted image key.
+ * @throws Error if the image is not found, the bucket does not exist, access is denied, or another error occurs during deletion.
+ */
+const deleteImage = async (imageData) => {
+    const deleteObjectParams = {
+        Bucket: bucketName,
+        Key: imageData.photo
+    }
+
+    const command = new DeleteObjectCommand(deleteObjectParams);
+
+    try {
+        // S3 command to delete the image from bucket
+        const result = await s3.send(command)
+        // Handle success result
+        return {
+            message: 'Photo deleted successfuly',
+            key: result.key,
+        }
+    } catch (error) {
+        // Handle specific error types if needed
+        if(error.code === 'NoSuchBucket') {
+            throw new Error('Bucket does not exist');
+        } else if (error.code === 'AccessDenied') {
+            throw new Error('Access denied');
+        }
+        throw error;    // Re-throw for general errors
+    }
+}
+
 module.exports = {
     uploadImage,
-    getImageURL
+    getImageURL,
+    deleteImage
 };
