@@ -12,11 +12,13 @@ const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
  * @returns {Promise<Object>} A Promise resolving to an object containing the upload result.
  * @throws Error if an error occurs during the upload process.
  */
-const uploadImage = async (file,originalImageName) => {    
+const uploadImage = async (file,originalImageName) => {
+    
+    const imageName = originalImageName ? originalImageName : generateRandomName(); // Check if original name is passed as a parameter
     try {      
         const params = {
             Bucket: bucketName,
-            Key: originalImageName ? originalImageName : generateRandomName(), // Check if original name is passed as a parameter
+            Key: imageName,
             Body: file.buffer,
             ContentType: file.mimetype,
         };
@@ -28,7 +30,7 @@ const uploadImage = async (file,originalImageName) => {
         return {
             message: 'Photo uploaded successfully',
             key: result.Key, // Or other relevant data
-            imageName: imageName,
+            imageName: imageName, // Return s3 filename to save on database
         };
     } catch (error) {
         // Handle specific error types if needed
